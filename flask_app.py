@@ -7,7 +7,8 @@ import myLUIS
 import myAPI
 import convAPI
 import mySession
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, make_response
+from pymongo import MongoClient
 
 # NLU testing page
 NLUhtmlHeader = '<center><h1>Eric Gregori OMSCS Advisor NLU Testing - egregori3@gatech.edu<br>Ask me about OMSCS admissions or curriculum</h1></center><br>'
@@ -34,6 +35,8 @@ with open(my_file_path, encoding='utf-8') as json_data:
     OMSCSDict = json.load(json_data)
 
 Session = mySession.mySession()
+client = MongoClient(port=27017)
+db = client.chatbot
 
 app = Flask(__name__)
 
@@ -89,11 +92,21 @@ def submit_post():
 
 @app.route('/webhook', methods=['POST'])
 def webhook():
-    return {
-        "speech": "THIS WORKED!",
-        "displayText": "THIS WORKED!",
-        "source": "lynchdennis94/ChatBotTool_Phase1"
+    req = request.get_json(silent=True, force=True)
+    intent_name = req['result']['metadata']['intentName']
+    response = db.intent.find_one({'intent': intent_name})['response']
+    return process_response(db.intent.find_one(response))
+
+def process_response(string_response):
+    response = {
+        "speech": string_response,
+        "displayText": string_response,
+        "source": "lynchdennis94-chatbot-phase1"
     }
+    response = json.dumps(response)
+    r = make_response(response)
+    r.headers['Content-Type'] = 'application/json'
+    return r
 
 if __name__ == '__main__':
     app.run()

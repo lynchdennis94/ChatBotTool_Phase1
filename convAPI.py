@@ -13,7 +13,6 @@ class convAPI:
         self.request.query = msg
         resp = self.request.getresponse()
         json_resp_str = str(resp.read().decode("utf-8"))
-        print("JSON RESPONSE STRING:\n {0}".format(json_resp_str))
         data = json.loads(json_resp_str)
         result = data['result']
         sessionID = data['sessionId']
