@@ -4,7 +4,8 @@ import json
 
 class myAPI:
     def __init__(self, jsonData):
-        ai = apiai.ApiAI('390bfd55dc8c4a979998b32b8e884c64')
+        #ai = apiai.ApiAI('390bfd55dc8c4a979998b32b8e884c64')
+        ai = apiai.ApiAI('f721b67ed617427d9c30e0efb8977750')
         self.request = ai.text_request()
         self.request.session_id = str(uuid.uuid4())
         self.jsonData = jsonData
