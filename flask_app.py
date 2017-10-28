@@ -95,7 +95,7 @@ def webhook():
     req = request.get_json(silent=True, force=True)
     intent_name = req['result']['metadata']['intentName']
     response = db.intent.find_one({'intent': intent_name})['response']
-    return process_response(db.intent.find_one(response))
+    return process_response(response)
 
 def process_response(string_response):
     response = {
