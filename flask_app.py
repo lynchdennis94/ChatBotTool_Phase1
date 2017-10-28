@@ -29,7 +29,7 @@ convForm = CONVhtmlHeader+CONVformTest
 
 # Start Flask server - This code runs once when server is started
 my_dir = os.path.dirname(__file__)
-my_file_path = os.path.join(my_dir, 'OMSCSLexJson1.json')
+my_file_path = os.path.join(my_dir, 'tools/OMSCSLexJson1.json')
 with open(my_file_path) as json_data:
     OMSCSDict = json.load(json_data)
 
@@ -86,6 +86,14 @@ def submit_post():
     retResponse += ('<td>' + NLUhtmlAPIRespStart + APIresp +  NLUhtmlAPIRespEnd + '</td>')
     retResponse += '</tr></table>'
     return retResponse
+
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    return {
+        "speech": "THIS WORKED!",
+        "displayText": "THIS WORKED!",
+        "source": "lynchdennis94/ChatBotTool_Phase1"
+    }
 
 if __name__ == '__main__':
     app.run()
