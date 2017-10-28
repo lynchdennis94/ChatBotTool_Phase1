@@ -30,7 +30,7 @@ convForm = CONVhtmlHeader+CONVformTest
 # Start Flask server - This code runs once when server is started
 my_dir = os.path.dirname(__file__)
 my_file_path = os.path.join(my_dir, 'tools/OMSCSLexJson1.json')
-with open(my_file_path) as json_data:
+with open(my_file_path, encoding='utf-8') as json_data:
     OMSCSDict = json.load(json_data)
 
 Session = mySession.mySession()
