@@ -38,9 +38,6 @@ with open(my_file_path, encoding='utf-8') as json_data:
 Session = mySession.mySession()
 client = MongoClient(port=27017)
 db = client.chatbot
-in_question_mode = True #Determines if user input is question or feedback
-prev_intent = "" #Tracks the previous intent for the session
-prev_response = "" #Tracks the bot response that will prompt next feedback
 
 app = Flask(__name__)
 
@@ -51,8 +48,9 @@ def main_page():
 #Conversation Testing
 @app.route('/conversation')
 def ConvPage():
-    in_question_mode = True
-    prev_intent = ""
+    Session.setInQuestionMode(True)
+    Session.setPrevResponse("")
+    Session.setPrevIntent("")
     if Session.Timeout():
         Session.StartSession()
         return convForm
@@ -60,7 +58,7 @@ def ConvPage():
 
 @app.route('/convsubmit', methods=['POST'])
 def csubmit_post():
-    if in_question_mode:
+    if Session.isInQuestionMode():
         if Session.stateDone():
             Session.StartSession()
         if Session.Timeout():
@@ -75,19 +73,23 @@ def csubmit_post():
         retResponse += ('Session Time remaining:'+str(Session.TimeRemaining())+' seconds&#13;&#10;')
         retResponse += Session.AddResponse(APIresp)
         retResponse += CONVhtmlAPIRespEnd
-        in_question_mode = False
+        Session.setInQuestionMode(False)
         return retResponse
     else:
         feedback = request.form["text"]
         feedback_item = {
-            'intent': prev_intent,
+            'intent': Session.getPrevIntent(),
             'feedback': feedback,
-            'prev_response': prev_response
+            'prev_response': Session.getPrevResponse()
         }
         db.feedback.insert_one(feedback_item)
-        in_question_mode = True
-        return "Thank you for your feedback!  Feel free to ask another question."
-        
+        Session.setInQuestionMode(True)
+        retResponse =  convForm
+        retResponse += CONVhtmlAPIRespStart
+        retResponse += ('Session Time remaining:'+str(Session.TimeRemaining())+' seconds&#13;&#10;')
+        retResponse += Session.AddResponse("Thank you for your feedback!  Feel free to ask another question")
+        retResponse += CONVhtmlAPIRespEnd
+        return retResponse
 
 #NLU Testing
 @app.route('/nlu')
@@ -113,7 +115,7 @@ def submit_post():
 def webhook():
     req = request.get_json(silent=True, force=True)
     intent_name = req['result']['metadata']['intentName']
-    prev_intent = intent_name
+    Session.setPrevIntent(intent_name)
     response = db.intent.find_one({'intent': intent_name})['response']
     return process_response(response)
 
@@ -124,7 +126,7 @@ def process_response(string_response):
         "source": "lynchdennis94-chatbot-phase1"
     }
     response = json.dumps(response)
-    prev_response = response
+    Session.setPrevResponse(response)
     r = make_response(response)
     r.headers['Content-Type'] = 'application/json'
     return r
