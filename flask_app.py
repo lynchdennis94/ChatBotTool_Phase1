@@ -34,9 +34,13 @@ my_file_path = os.path.join(my_dir, 'tools/OMSCSLexJson1.json')
 with open(my_file_path, encoding='utf-8') as json_data:
     OMSCSDict = json.load(json_data)
 
+#Global variables
 Session = mySession.mySession()
 client = MongoClient(port=27017)
 db = client.chatbot
+in_question_mode = True #Determines if user input is question or feedback
+prev_intent = "" #Tracks the previous intent for the session
+prev_response = "" #Tracks the bot response that will prompt next feedback
 
 app = Flask(__name__)
 
@@ -47,6 +51,8 @@ def main_page():
 #Conversation Testing
 @app.route('/conversation')
 def ConvPage():
+    in_question_mode = True
+    prev_intent = ""
     if Session.Timeout():
         Session.StartSession()
         return convForm
@@ -54,21 +60,34 @@ def ConvPage():
 
 @app.route('/convsubmit', methods=['POST'])
 def csubmit_post():
-    if Session.stateDone():
-        Session.StartSession()
-    if Session.Timeout():
-        return 'Your session has timed out. Goto egregori3.pythonanywhere.com to re-enter '
-    client = convAPI.convAPI()
-    if Session.inValidSession():
-        return 'Goto egregori3.pythonanywhere.com'
-    APIresp, retState = client.GetIntent(request.form["text"], Session.GetSessionId())
-    if retState: Session.ChangeState(retState)
-    retResponse =  convForm
-    retResponse += CONVhtmlAPIRespStart
-    retResponse += ('Session Time remaining:'+str(Session.TimeRemaining())+' seconds&#13;&#10;')
-    retResponse += Session.AddResponse(APIresp)
-    retResponse += CONVhtmlAPIRespEnd
-    return retResponse
+    if in_question_mode:
+        if Session.stateDone():
+            Session.StartSession()
+        if Session.Timeout():
+            return 'Your session has timed out. Goto egregori3.pythonanywhere.com to re-enter '
+        client = convAPI.convAPI()
+        if Session.inValidSession():
+            return 'Goto egregori3.pythonanywhere.com'
+        APIresp, retState = client.GetIntent(request.form["text"], Session.GetSessionId())
+        if retState: Session.ChangeState(retState)
+        retResponse =  convForm
+        retResponse += CONVhtmlAPIRespStart
+        retResponse += ('Session Time remaining:'+str(Session.TimeRemaining())+' seconds&#13;&#10;')
+        retResponse += Session.AddResponse(APIresp)
+        retResponse += CONVhtmlAPIRespEnd
+        in_question_mode = False
+        return retResponse
+    else:
+        feedback = request.form["text"]
+        feedback_item = {
+            'intent': prev_intent,
+            'feedback': feedback,
+            'prev_response': prev_response
+        }
+        db.feedback.insert_one(feedback_item)
+        in_question_mode = True
+        return "Thank you for your feedback!  Feel free to ask another question."
+        
 
 #NLU Testing
 @app.route('/nlu')
@@ -94,16 +113,18 @@ def submit_post():
 def webhook():
     req = request.get_json(silent=True, force=True)
     intent_name = req['result']['metadata']['intentName']
+    prev_intent = intent_name
     response = db.intent.find_one({'intent': intent_name})['response']
     return process_response(response)
 
 def process_response(string_response):
     response = {
-        "speech": string_response,
+        "speech": string_response + "\nPlease provide feedback on this response! Was it helpful?",
         "displayText": string_response,
         "source": "lynchdennis94-chatbot-phase1"
     }
     response = json.dumps(response)
+    prev_response = response
     r = make_response(response)
     r.headers['Content-Type'] = 'application/json'
     return r
