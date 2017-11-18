@@ -125,9 +125,9 @@ def submit_post():
 def webhook():
     req = request.get_json(silent=True, force=True)
     intent_name = req['result']['metadata']['intentName']
-    Session.setPrevIntent(req)
-    response = db.intent.find_one({'intent': intent_name})['response']
-    return process_response(response)
+    intent = db.intent.find_one({'intent': intent_name})
+    session.setPrevIntent(intent)
+    return process_response(intent['response'])
 
 def process_response(string_response):
     response = {
