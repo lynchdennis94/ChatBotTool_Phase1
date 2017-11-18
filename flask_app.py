@@ -22,7 +22,7 @@ NLUhtmlAPIRespEnd   = '</textarea>'
 testForm = NLUhtmlHeader+NLUformTest
 
 # Conversation page
-CONVhtmlHeader = '<center><h1>Eric Gregori OMSCS Advisor Conversational Agent - egregori3@gatech.edu</h1><h2>Ask about OMSCS admissions or curriculum.</h2></center>'
+CONVhtmlHeader = '<center><h1>Dennis Lynch OMSCS Advisor Chatbot - dlynch35@gatech.edu</h1><h2>Based off of the conversation agent developed by Eric Gregori - egregori3@gatech.edu</h2><h2>Ask about OMSCS admissions or curriculum.</h2></center>'
 CONVformTest = '<center><form action="convsubmit" id="textform" method="post"><textarea name="text" cols="40" placeholder="Enter text and click Submit"></textarea><input type="submit" value="Submit"></form></center>'
 CONVhtmlAPIRespStart = '<center><br><textarea cols="80" rows="40" readonly>'
 CONVhtmlAPIRespEnd   = '</textarea></center>'
