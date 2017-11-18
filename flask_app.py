@@ -86,7 +86,7 @@ def csubmit_post():
             'written_feedback': written_feedback,
             'prev_response': Session.getPrevResponse()
         }
-        weight_score = 1.0*accuracy + 1.0*understandability + 1.0*effectiveness
+        weight_score = accuracy + understandability + effectiveness
         print("Previous response:")
         print(Session.getPrevResponse())
         print("Previous intent:")
