@@ -1,3 +1,10 @@
+Database structure:
+---
+chatbot.intent -> Stores the intents in the format intent: response
+chatbot.feedback -> Stores the intents in the format intent: feedback
+
+Original README
+---
 https://github.com/egregori3/ChatBotTool_Phase1.git
 echo "# ChatBotTool_Phase1" >> README.md
 git init
