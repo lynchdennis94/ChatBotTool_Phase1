@@ -89,8 +89,14 @@ def csubmit_post():
         }
         prev_intent = Session.getPrevIntent()
         weight_score = float(accuracy + understandability + effectiveness)
+        print("weight_score")
+        print(weight_score)
         prev_weight = float(prev_intent['weight'])
+        print("prev_weight")
+        print(prev_weight)
         new_weight = (weight_score + prev_weight)/2
+        print("new_weight")
+        print(new_weight)
         db.intent.update_one({'_id': prev_intent['_id']}, {'$set': {'weight': new_weight}})
         db.feedback.insert_one(feedback_item)
         Session.setInQuestionMode(True)
