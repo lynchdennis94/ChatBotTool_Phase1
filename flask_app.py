@@ -62,10 +62,10 @@ def csubmit_post():
         if Session.stateDone():
             Session.StartSession()
         if Session.Timeout():
-            return 'Your session has timed out. Goto egregori3.pythonanywhere.com to re-enter '
+            return 'Your session has timed out. Please return to the conversation home page to restart '
         client = convAPI.convAPI()
         if Session.inValidSession():
-            return 'Goto egregori3.pythonanywhere.com'
+            return 'Return to the conversation homepage to restart your conversation'
         APIresp, retState = client.GetIntent(request.form["text"], Session.GetSessionId())
         if retState: Session.ChangeState(retState)
         retResponse =  convForm
@@ -77,9 +77,13 @@ def csubmit_post():
         return retResponse
     else:
         feedback = request.form["text"]
+        accuracy, understandability, effectiveness, written_feedback = feedback.split(';')
         feedback_item = {
             'intent': Session.getPrevIntent(),
-            'feedback': feedback,
+            'accuracy': accuracy,
+            'understandability': understandability,
+            'effectiveness': effectiveness,
+            'written_feedback': written_feedback,
             'prev_response': Session.getPrevResponse()
         }
         db.feedback.insert_one(feedback_item)
@@ -121,7 +125,7 @@ def webhook():
 
 def process_response(string_response):
     response = {
-        "speech": string_response + "\nPlease provide feedback on this response! Was it helpful?",
+        "speech": string_response + "\n\nTo provide feedback on this answer, respond with a 1-10 grading on:\n1)The answer's accuracy in answering your question\n2)How understandable the answer was\n3)How effectively your question was answered\nAdd any other feedback you care to leave as well - scores and feedback should be sent in the format <accuracy score>;<understandability score>;<effectiveness score>;<written feedback>\n\nThank you!",
         "displayText": string_response,
         "source": "lynchdennis94-chatbot-phase1"
     }
