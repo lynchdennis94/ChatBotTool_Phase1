@@ -9,6 +9,7 @@ import convAPI
 import mySession
 from flask import Flask, request, send_from_directory, make_response
 from pymongo import MongoClient
+import random
 
 # NLU testing page
 NLUhtmlHeader = '<center><h1>Eric Gregori OMSCS Advisor NLU Testing - egregori3@gatech.edu<br>Ask me about OMSCS admissions or curriculum</h1></center><br>'
@@ -124,7 +125,14 @@ def submit_post():
 def webhook():
     req = request.get_json(silent=True, force=True)
     intent_name = req['result']['metadata']['intentName']
-    intent = db.intent.find_one({'intent': intent_name})
+    intent_list = db.intent.find({'intent': intent_name})
+    intent_map = {}
+    intent_chooser_list = []
+    for cur_intent in intent_list:
+        intent_map[cur_intent['_id']] = cur_intent
+        for chooser_index in range(0, int(cur_intent['weight'])):
+            intent_chooser_list.append(cur_intent['_id'])
+    intent = intent_map[intent_chooser_list[random.randint(0, len(intent_chooser_list)-1)]]
     Session.setPrevIntent(intent)
     return process_response(intent['response'])
 
