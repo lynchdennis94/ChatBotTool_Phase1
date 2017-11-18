@@ -86,6 +86,10 @@ def csubmit_post():
             'written_feedback': written_feedback,
             'prev_response': Session.getPrevResponse()
         }
+        weight_score = 1.0*accuracy + 1.0*understandability + 1.0*effectiveness
+        print "Previous response:", Session.getPrevResponse()
+        print "Previous intent:", Session.getPrevIntent()
+        #db.intent.update_one({'_id': 
         db.feedback.insert_one(feedback_item)
         Session.setInQuestionMode(True)
         retResponse =  convForm
@@ -119,7 +123,7 @@ def submit_post():
 def webhook():
     req = request.get_json(silent=True, force=True)
     intent_name = req['result']['metadata']['intentName']
-    Session.setPrevIntent(intent_name)
+    Session.setPrevIntent(req)
     response = db.intent.find_one({'intent': intent_name})['response']
     return process_response(response)
 
