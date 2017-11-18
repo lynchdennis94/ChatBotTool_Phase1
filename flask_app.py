@@ -87,8 +87,8 @@ def csubmit_post():
             'prev_response': Session.getPrevResponse()
         }
         prev_intent = Session.getPrevIntent()
-        weight_score = accuracy + understandability + effectiveness
-        prev_weight = prev_intent['weight']
+        weight_score = float(accuracy + understandability + effectiveness)
+        prev_weight = float(prev_intent['weight'])
         new_weight = (weight_score + prev_weight)/2
         db.intent.update_one({'_id': prev_intent['_id']}, {'$set': {'weight': new_weight}})
         db.feedback.insert_one(feedback_item)
