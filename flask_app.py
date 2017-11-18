@@ -87,8 +87,10 @@ def csubmit_post():
             'prev_response': Session.getPrevResponse()
         }
         weight_score = 1.0*accuracy + 1.0*understandability + 1.0*effectiveness
-        print "Previous response:", Session.getPrevResponse()
-        print "Previous intent:", Session.getPrevIntent()
+        print("Previous response:")
+        print(Session.getPrevResponse())
+        print("Previous intent:")
+        print(Session.getPrevIntent())
         #db.intent.update_one({'_id': 
         db.feedback.insert_one(feedback_item)
         Session.setInQuestionMode(True)
