@@ -88,7 +88,7 @@ def csubmit_post():
             'prev_response': Session.getPrevResponse()
         }
         prev_intent = Session.getPrevIntent()
-        weight_score = float(accuracy + understandability + effectiveness)
+        weight_score = float(accuracy) + float(understandability) + float(effectiveness)
         print("weight_score")
         print(weight_score)
         prev_weight = float(prev_intent['weight'])
