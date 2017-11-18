@@ -12,10 +12,12 @@ with open('OMSCSLexJson2.json') as input_file:
 db.intent.remove()
 
 for intent_key in data:
-    intent_item = {
-                    'intent' : intent_key,
-                    'response' : data[intent_key]['response'],
-                    'weight' : 15.0
-                }
-    db.intent.insert_one(intent_item)
+    response_list = data[intent_key]['response']
+    for response in response_list:
+        intent_item = {
+                        'intent' : intent_key,
+                        'response' : response,
+                        'weight' : 15.0
+                    }
+        db.intent.insert(intent_item)
 
