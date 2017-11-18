@@ -126,7 +126,7 @@ def webhook():
     req = request.get_json(silent=True, force=True)
     intent_name = req['result']['metadata']['intentName']
     intent = db.intent.find_one({'intent': intent_name})
-    session.setPrevIntent(intent)
+    Session.setPrevIntent(intent)
     return process_response(intent['response'])
 
 def process_response(string_response):
