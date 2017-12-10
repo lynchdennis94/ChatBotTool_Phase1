@@ -89,14 +89,8 @@ def csubmit_post():
         }
         prev_intent = Session.getPrevIntent()
         weight_score = float(accuracy) + float(understandability) + float(effectiveness)
-        print("weight_score")
-        print(weight_score)
         prev_weight = float(prev_intent['weight'])
-        print("prev_weight")
-        print(prev_weight)
         new_weight = (weight_score + prev_weight)/2
-        print("new_weight")
-        print(new_weight)
         db.intent.update_one({'_id': prev_intent['_id']}, {'$set': {'weight': new_weight}})
         db.feedback.insert_one(feedback_item)
         Session.setInQuestionMode(True)
@@ -132,22 +126,13 @@ def webhook():
     req = request.get_json(silent=True, force=True)
     intent_name = req['result']['metadata']['intentName']
     intent_list = db.intent.find({'intent': intent_name})
-    print("Intent List:")
-    print(intent_list)
     intent_map = {}
     intent_chooser_list = []
     for cur_intent in intent_list:
         intent_map[cur_intent['_id']] = cur_intent
-        print("Current intent id and weight:")
-        print(cur_intent['_id'])
-        print(cur_intent['weight'])
         for chooser_index in range(0, int(cur_intent['weight'])):
             intent_chooser_list.append(cur_intent['_id'])
-    print("Intent chooser list:")
-    print(intent_chooser_list)
-    print("Chooser index:")
     chooser_index = random.randint(0, len(intent_chooser_list)-1)
-    print(chooser_index)
     intent = intent_map[intent_chooser_list[chooser_index]]
     Session.setPrevIntent(intent)
     return process_response(intent['response'])

@@ -4,6 +4,8 @@ from pprint import pprint
 client = MongoClient(port=27017)
 db=client.chatbot
 
-result = db.intent.find_one({'intent' : 'admission'})
-pprint(result)
-
+result_list = db.intent.find({'intent' : 'gre'})
+for result in result_list:
+	print("")
+	pprint(result)
+	print("")
